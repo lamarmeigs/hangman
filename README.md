@@ -4,7 +4,7 @@ A buddy related how he had to solve hangman during a technical interview. After 
 
 The guesser implementations include: 
 
-0. (Pending) Manual (user-driven) letter selection
+0. Manual (user-driven) letter selection
 1. (Pending) Random selection of letters from the alphabet
 2. (Pending) Ordered random selection (guess vowels first)
 3. (Pending) Random selection from an alphabet composed of only the unique letters in words of the appropriate length
