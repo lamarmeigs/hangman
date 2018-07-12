@@ -47,6 +47,9 @@ class Game:
             CheaterError: if any of the letter surpass the number of allowable guesses
         """
         for letter in letters:
+            if letter in self.correct_guesses.union(self.incorrect_guesses):
+                continue
+
             if not self.remaining_guess_count:
                 raise CheaterError(
                     'Attempt to make guesses after {} failures'.format(self.max_failures)

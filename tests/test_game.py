@@ -66,6 +66,18 @@ class GameTestCase(TestCase):
         game.correct_guesses.update('astic')
         self.assertTrue(game.has_won)
 
+    def test_process_guess_ignores_resubmissions(self):
+        game = Game('stygian', max_failures=2)
+        game.correct_guesses.update('ai')
+        game.incorrect_guesses.update('eo')
+
+        try:
+            game.process_guess('aieo')
+        except CheaterError:
+            self.fail('Raised CheaterError on resubmitted guesses')
+        self.assertEqual(game.correct_guesses, {'a', 'i'})
+        self.assertEqual(game.incorrect_guesses, {'e', 'o'})
+
     def test_process_guess_catches_cheaters(self):
         game = Game('toroidal', max_failures=2)
         with self.assertRaises(CheaterError) as cm:
