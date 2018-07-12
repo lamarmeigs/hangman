@@ -6,9 +6,9 @@ class CheaterError(Exception):
 class Game:
     """Represents a single instance of a Hangman game"""
 
-    def __init__(self, word, max_guesses=8):
+    def __init__(self, word, max_failures=8):
         self._word = word.lower()
-        self.max_guesses = max_guesses
+        self.max_failures = max_failures
         self.correct_guesses = set()
         self.incorrect_guesses = set()
 
@@ -21,12 +21,12 @@ class Game:
         )
 
     @property
-    def guess_count(self):
-        return len(self.correct_guesses) + len(self.incorrect_guesses)
+    def failure_count(self):
+        return len(self.incorrect_guesses)
 
     @property
     def remaining_guess_count(self):
-        return self.max_guesses - self.guess_count
+        return self.max_failures - self.failure_count
 
     @property
     def is_game_over(self):
@@ -49,7 +49,7 @@ class Game:
         for letter in letters:
             if not self.remaining_guess_count:
                 raise CheaterError(
-                    'Attempt to make more than {} guesses'.format(self.max_guesses)
+                    'Attempt to make guesses after {} failures'.format(self.max_failures)
                 )
 
             if letter in self._word:
