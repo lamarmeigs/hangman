@@ -56,4 +56,4 @@ class RunAllGuessersTestCase(TestCase):
     def test_runs_each_guesser(self):
         with mock.patch.object(run, 'run_guesser') as mock_run:
             run.run_all_guessers(['antediluvian'], max_guesses=8)
-        self.assertEqual(mock_run.call_count, len(run.GUESSERS))
+        self.assertEqual(mock_run.call_count, len(run.GUESSERS) - 1)

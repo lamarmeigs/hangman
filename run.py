@@ -7,6 +7,8 @@ from game import Game
 
 GUESSERS = {
     'manual': guessers.ManualGuesser,
+    'random': guessers.RandomGuesser,
+    'ordered-random': guessers.OrderedRandomGuesser,
 }
 
 
@@ -21,7 +23,7 @@ def load_words(file_path):
         list of str
     """
     with open(file_path) as wordfile:
-        words = wordfile.read().split('\n')
+        words = wordfile.read().lower().split('\n')
     return words
 
 
@@ -86,8 +88,10 @@ def run_all_guessers(word_list, max_guesses, verbose=False):
         verbose (bool): whether to output progress reports
     """
     word = random.choice(word_list)
-    for guesser_class in GUESSERS.values():
-        run_guesser(guesser_class, [word], max_guesses, verbose=verbose)
+    for guesser_name in GUESSERS.keys():
+        if guesser_name != 'manual':
+            guesser_class = GUESSERS.get(guesser_name)
+            run_guesser(guesser_class, [word], max_guesses, verbose=verbose)
 
 
 if __name__ == '__main__':
