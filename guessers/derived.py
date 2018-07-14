@@ -57,12 +57,12 @@ class RederivedAlphabetGuesser(BaseDerivedAlphabetGuesser):
         guess = None
         if len(self.potential_words) == 1:
             guess = self.potential_words[0][0]
-            self.potential_words[0] = self.potential_words[1:]
+            self.potential_words[0] = self.potential_words[0][1:]
         else:
             self.potential_words = self._match_words(guessed_word, self.potential_words)
             if not self.potential_words:
                 raise TableFlipError('No possible solution found')
-            self.alphabet = self._derive_alphabet(len(guessed_word))
+            self.alphabet = self._derive_alphabet(self.potential_words)
             guess = random.choice(list(self.alphabet))
         return guess
 
