@@ -30,16 +30,16 @@ def load_words(file_path):
     return words
 
 
-def run_guesser(guesser_class, word_list, max_guesses, verbose=False):
+def run_guesser(guesser_class, word, word_list, max_guesses, verbose=False):
     """Run an instance of the specified guesser on a randomly-selected word.
 
     Args:
         guesser_class (type): a class inheriting from guessers.base.BaseGuesser
-        word_list (list of str): a collection of potential words to guess
+        word (str): the word to guess
+        word_list (list of str): a collection of all potential words to guess
         max_guesses (int): a maximum number of guesses allowed per game
         verbose (bool): whether to output progress reports
     """
-    word = random.choice(word_list)
     game = Game(word, max_failures=max_guesses)
     guesser = guesser_class(word_length=len(game.word), potential_words=word_list)
     while not game.is_game_over:
@@ -82,19 +82,19 @@ def run_guesser(guesser_class, word_list, max_guesses, verbose=False):
         )
 
 
-def run_all_guessers(word_list, max_guesses, verbose=False):
+def run_all_guessers(word, word_list, max_guesses, verbose=False):
     """Run an instance of each defined guesser on a randomly-selected word.
 
     Args:
-        word_list (list of str): a collection of potential words to guess
+        word (str): the word to guess
+        word_list (list of str): a collection of all potential words to guess
         max_guesses (int): a maximum number of guesses allowed per game
         verbose (bool): whether to output progress reports
     """
-    word = random.choice(word_list)
     for guesser_name in GUESSERS.keys():
         if guesser_name != 'manual':
             guesser_class = GUESSERS.get(guesser_name)
-            run_guesser(guesser_class, [word], max_guesses, verbose=verbose)
+            run_guesser(guesser_class, word, word_list, max_guesses, verbose=verbose)
 
 
 if __name__ == '__main__':
@@ -125,13 +125,15 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     words = [args.word] if args.word else load_words(args.wordfile)
+    word = random.choice(words)
     if args.guesser:
         guesser_class = GUESSERS.get(args.guesser)
         run_guesser(
             guesser_class,
+            word,
             words,
             max_guesses=args.count,
             verbose=args.verbose
         )
     else:
-        run_all_guessers(words, max_guesses=args.count, verbose=args.verbose)
+        run_all_guessers(word, words, max_guesses=args.count, verbose=args.verbose)

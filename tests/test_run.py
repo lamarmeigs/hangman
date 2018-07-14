@@ -28,6 +28,7 @@ class RunGuesserTestCase(TestCase):
         with mock.patch('builtins.print') as mock_print:
             run.run_guesser(
                 self.PredictableGuesser,
+                'protean',
                 ['protean'],
                 max_guesses=8,
                 verbose=False
@@ -42,6 +43,7 @@ class RunGuesserTestCase(TestCase):
         with mock.patch('builtins.print') as mock_print:
             run.run_guesser(
                 self.PredictableGuesser,
+                'deleterious',
                 ['deleterious'],
                 max_guesses=8,
                 verbose=False
@@ -55,5 +57,5 @@ class RunGuesserTestCase(TestCase):
 class RunAllGuessersTestCase(TestCase):
     def test_runs_each_guesser(self):
         with mock.patch.object(run, 'run_guesser') as mock_run:
-            run.run_all_guessers(['antediluvian'], max_guesses=8)
+            run.run_all_guessers('antediluvian', ['antediluvian'], max_guesses=8)
         self.assertEqual(mock_run.call_count, len(run.GUESSERS) - 1)
