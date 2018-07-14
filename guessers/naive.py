@@ -10,7 +10,7 @@ class RandomGuesser(BaseGuesser):
         self.alphabet = list(string.ascii_lowercase)
         random.shuffle(self.alphabet)
 
-    def guess(self):
+    def guess(self, *args, **kwargs):
         return self.alphabet.pop()
 
 
@@ -23,5 +23,5 @@ class OrderedRandomGuesser(BaseGuesser):
         random.shuffle(consonants)
         self.alphabet = consonants + vowels
 
-    def guess(self):
+    def guess(self, *args, **kwargs):
         return self.alphabet.pop()
