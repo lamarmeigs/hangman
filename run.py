@@ -9,6 +9,9 @@ GUESSERS = {
     'manual': guessers.ManualGuesser,
     'random': guessers.RandomGuesser,
     'ordered-random': guessers.OrderedRandomGuesser,
+    'derived': guessers.DerivedAlphabetGuesser,
+    'ordered-derived': guessers.OrderedDerivedAlphabetGuesser,
+    'rederived': guessers.RederivedAlphabetGuesser,
 }
 
 
@@ -23,7 +26,7 @@ def load_words(file_path):
         list of str
     """
     with open(file_path) as wordfile:
-        words = wordfile.read().lower().split('\n')
+        words = wordfile.read().lower().split()
     return words
 
 
@@ -38,7 +41,7 @@ def run_guesser(guesser_class, word_list, max_guesses, verbose=False):
     """
     word = random.choice(word_list)
     game = Game(word, max_failures=max_guesses)
-    guesser = guesser_class(game.word)
+    guesser = guesser_class(word_length=len(game.word), potential_words=word_list)
     while not game.is_game_over:
         if verbose:
             print(
@@ -49,7 +52,7 @@ def run_guesser(guesser_class, word_list, max_guesses, verbose=False):
                 )
             )
 
-        guess = guesser.guess()
+        guess = guesser.guess(guessed_word=game.word, word_length=len(game.word))
         game.process_guess(guess)
 
         if verbose:

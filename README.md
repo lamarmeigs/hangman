@@ -7,9 +7,9 @@ The guesser implementations include:
 0. Manual (user-driven) letter selection
 1. Random selection of letters from the alphabet
 2. Ordered random selection (guess vowels first)
-3. (Pending) Random selection from an alphabet composed of only the unique letters in words of the appropriate length
-4. (Pending) As above, but limit the potential word matches and re-derive the alphabet after each guess
-5. (Pending) As above, but with a last-ditch guess
+3. Random selection from an alphabet composed of only the unique letters in words of the appropriate length
+4. As above, but limit the potential word matches and re-derive the alphabet after each guess
+5. ~(Pending) As above, but with a last-ditch guess~
 6. (Pending) Prioritize guessing letters that occur more frequently in the words of appropriate length
 7. (Pending) Use Markov chains to guess letters that are most likely to occur after a found match
 8. (Pending) Hire a statistician; implement whatever they want

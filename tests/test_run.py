@@ -20,7 +20,7 @@ class RunGuesserTestCase(TestCase):
     class PredictableGuesser(BaseGuesser):
         letters_to_guess = []
 
-        def guess(self):
+        def guess(self, *args, **kwargs):
             return self.letters_to_guess.pop(0)
 
     def test_output_on_win(self):
