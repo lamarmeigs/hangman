@@ -92,3 +92,11 @@ class GameTestCase(TestCase):
         game.process_guess('aeiou')
         self.assertEqual(game.correct_guesses, {'a', 'e', 'i'})
         self.assertEqual(game.incorrect_guesses, {'o', 'u'})
+
+    def test_process_guess_returns_letter_correctness(self):
+        game = Game('reactionary')
+        letters = game.process_guess('aeiou')
+        self.assertEqual(
+            letters,
+            {'a': True, 'e': True, 'i': True, 'o': True, 'u': False}
+        )

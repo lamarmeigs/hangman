@@ -43,9 +43,13 @@ class Game:
         Args:
             letters (str): any letters the player is trying to guess
 
+        Returns:
+            a {str: bool} dict indicating letter correctness
+
         Raises:
             CheaterError: if any of the letter surpass the number of allowable guesses
         """
+        letter_correctness = {}
         for letter in letters:
             if letter in self.correct_guesses.union(self.incorrect_guesses):
                 continue
@@ -57,5 +61,8 @@ class Game:
 
             if letter in self._word:
                 self.correct_guesses.add(letter)
+                letter_correctness[letter] = True
             else:
                 self.incorrect_guesses.add(letter)
+                letter_correctness[letter] = False
+        return letter_correctness

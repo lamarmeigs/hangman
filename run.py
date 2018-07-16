@@ -53,7 +53,8 @@ def run_guesser(guesser_class, word, word_list, max_guesses, verbose=False):
             )
 
         guess = guesser.guess(guessed_word=game.word, word_length=len(game.word))
-        game.process_guess(guess)
+        letter_correctness = game.process_guess(guess)
+        guesser.update_state(letter_correctness)
 
         if verbose:
             print('{} guessed {}\n'.format(type(guesser).__name__, guess))
