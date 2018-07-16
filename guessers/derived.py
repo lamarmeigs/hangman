@@ -6,21 +6,39 @@ from guessers.exc import TableFlipError
 
 
 class BaseDerivedAlphabetGuesser(BaseGuesser):
+    def __init__(self, *args, **kwargs):
+        self.incorrect_guesses = set()
+
     @staticmethod
-    def _cull_words(word_length, potential_words):
-        """Extract all words of a specific length from a list of words"""
-        return [word for word in potential_words if len(word) == word_length]
+    def _cull_words(word_length, potential_words, absent_letters):
+        """Extract all potential matches from a list of words"""
+        return [
+            word
+            for word in potential_words
+            if len(word) == word_length and not set(word).intersection(absent_letters)
+        ]
 
     @staticmethod
     def _derive_alphabet(potential_words):
         """Extract all unique letters in the given list of words"""
         return set(''.join(potential_words))
 
+    def update_state(self, letter_match):
+        """Record letters not present in the word to guess"""
+        for letter, is_correct in letter_match.items():
+            if not is_correct:
+                self.incorrect_guesses.add(letter)
+
 
 class DerivedAlphabetGuesser(BaseDerivedAlphabetGuesser):
     """Restrict guesses to only letters in words of appropriate length"""
     def __init__(self, word_length, potential_words, *args, **kwargs):
-        self.potential_words = self._cull_words(word_length, potential_words)
+        super().__init__()
+        self.potential_words = self._cull_words(
+            word_length,
+            potential_words,
+            self.incorrect_guesses
+        )
         self.alphabet = list(self._derive_alphabet(potential_words))
         random.shuffle(self.alphabet)
 
@@ -31,7 +49,12 @@ class DerivedAlphabetGuesser(BaseDerivedAlphabetGuesser):
 class OrderedDerivedAlphabetGuesser(DerivedAlphabetGuesser):
     """Guess only letters in words of appropriate length, starting with vowels."""
     def __init__(self, word_length, potential_words, *args, **kwargs):
-        self.potential_words = self._cull_words(word_length, potential_words)
+        super().__init__(word_length, potential_words, *args, **kwargs)
+        self.potential_words = self._cull_words(
+            word_length,
+            potential_words,
+            self.incorrect_guesses
+        )
         alphabet = self._derive_alphabet(potential_words)
         vowels = set('aeiou').intersection(alphabet)
         consonants = set(alphabet).difference(vowels)
@@ -51,7 +74,12 @@ class RederivedAlphabetGuesser(BaseDerivedAlphabetGuesser):
     appropriate and match all letters guessed so far.
     """
     def __init__(self, word_length, potential_words, *args, **kwargs):
-        self.potential_words = self._cull_words(word_length, potential_words)
+        super().__init__()
+        self.potential_words = self._cull_words(
+            word_length,
+            potential_words,
+            self.incorrect_guesses,
+        )
 
     def guess(self, guessed_word, *args, **kwargs):
         guess = None
@@ -59,7 +87,10 @@ class RederivedAlphabetGuesser(BaseDerivedAlphabetGuesser):
             guess = self.potential_words[0][0]
             self.potential_words[0] = self.potential_words[0][1:]
         else:
-            self.potential_words = self._match_words(guessed_word, self.potential_words)
+            self.potential_words = self._match_words(
+                guessed_word,
+                self.potential_words,
+            )
             if not self.potential_words:
                 raise TableFlipError('No possible solution found')
             self.alphabet = self._derive_alphabet(self.potential_words)

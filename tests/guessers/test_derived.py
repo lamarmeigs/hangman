@@ -14,16 +14,18 @@ class BaseDerivedAlphabetGuesserTestCase(TestCase):
         def guess(self, *args, **kwargs):
             pass
 
-    def test_cull_words_limits_words_by_length(self):
+    def test_init_sets_incorrect_guesses(self):
+        guesser = self.DummyDerivedAlphabetGuesser()
+        self.assertEqual(guesser.incorrect_guesses, set())
+
+    def test_cull_words_limits_words_by_length_and_letters(self):
         guesser = self.DummyDerivedAlphabetGuesser()
         culled_words = guesser._cull_words(
             12,
-            ['haberdashery', 'horticulture', 'thalassophobia']
+            ['haberdashery', 'horticulture', 'thalassophobia'],
+            {'o'}
         )
-        self.assertCountEqual(
-            culled_words,
-            ['haberdashery', 'horticulture']
-        )
+        self.assertCountEqual(culled_words, ['haberdashery'])
 
     def test_derive_alphabet_extracts_unique_letters(self):
         guesser = self.DummyDerivedAlphabetGuesser()
@@ -31,6 +33,11 @@ class BaseDerivedAlphabetGuesserTestCase(TestCase):
             ['stereoscopy', 'microscope']
         )
         self.assertEqual(unique_letters, set('sterocpymi'))
+
+    def test_update_state_records_incorrect_letters(self):
+        guesser = self.DummyDerivedAlphabetGuesser()
+        guesser.update_state({'a': True, 'e': False, 'i': False, 'o': True})
+        self.assertEqual(guesser.incorrect_guesses, {'e', 'i'})
 
 
 class DerivedAlphabetGuesserTestCase(TestCase):
@@ -85,7 +92,11 @@ class RederivedAlphabetGuesserTestCase(TestCase):
             guesser = RederivedAlphabetGuesser(len('mendacity'), ['mendacity'])
 
         self.assertEqual(guesser.potential_words, mock_cull.return_value)
-        mock_cull.assert_called_once_with(len('mendacity'), ['mendacity'])
+        mock_cull.assert_called_once_with(
+            len('mendacity'),
+            ['mendacity'],
+            guesser.incorrect_guesses,
+        )
 
     def test_guess_rederives_alphabet_and_words(self):
         with mock.patch.object(RederivedAlphabetGuesser, '_cull_words') as mock_cull:
