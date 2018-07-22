@@ -28,10 +28,9 @@ class FrequentLetterGuesser(RederivedAlphabetGuesser):
             guess = self.potential_words[0][0]
             self.potential_words[0] = self.potential_words[0][1:]
         else:
-            self.potential_words = self._cull_words(
-                len(guessed_word),
+            self.potential_words = self._match_words(
+                guessed_word,
                 self.potential_words,
-                self.incorrect_guesses,
             )
             guess = self._select_most_frequent_letter(self.potential_words)
         return guess

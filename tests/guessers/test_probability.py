@@ -27,29 +27,28 @@ class FrequentLetterGuesserTestCase(TestCase):
 
     def test_guess_returns_most_frequent_letter(self):
         guesser = FrequentLetterGuesser(6, ['latter', 'barrel', 'rabbit'])
-        with mock.patch.object(guesser, '_cull_words') as mock_cull:
+        with mock.patch.object(guesser, '_match_words') as mock_match:
             with mock.patch.object(guesser, '_select_most_frequent_letter') as mock_select:
                 guess = guesser.guess(guessed_word='......')
 
-        mock_cull.assert_called_once_with(
-            6,
+        mock_match.assert_called_once_with(
+            '......',
             ['latter', 'barrel', 'rabbit'],
-            guesser.incorrect_guesses
         )
-        mock_select.assert_called_once_with(mock_cull.return_value)
+        mock_select.assert_called_once_with(mock_match.return_value)
         self.assertEqual(guess, mock_select.return_value)
 
     def test_guess_pops_letters_off_single_word(self):
         guesser = FrequentLetterGuesser(6, ['gauche'])
         self.assertEqual(len(guesser.potential_words), 1)
 
-        with mock.patch.object(guesser, '_cull_words') as mock_cull:
+        with mock.patch.object(guesser, '_match_words') as mock_match:
             with mock.patch.object(guesser, '_select_most_frequent_letter') as mock_select:
                 guess = guesser.guess(guessed_word='......')
 
         self.assertIn(guess, 'gauche')
         self.assertNotIn(guess, guesser.potential_words[0])
-        mock_cull.assert_not_called()
+        mock_match.assert_not_called()
         mock_select.assert_not_called()
 
     def test_select_most_frequent_letter_works_as_expected(self):
