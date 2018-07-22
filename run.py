@@ -67,7 +67,7 @@ def run_guesser(guesser_class, word, word_list, max_guesses, verbose=False):
     )
     if game.has_won:
         print(
-            '{} successfully guessed "{}" after {}'.format(
+            '{} successfully guessed "{}"\n\t{}'.format(
                 type(guesser).__name__,
                 game.word,
                 guess_status,
@@ -75,7 +75,7 @@ def run_guesser(guesser_class, word, word_list, max_guesses, verbose=False):
         )
     else:
         print(
-            '{} failed to guess "{}" (discovered "{}") after {}'.format(
+            '{} failed to guess "{}" (discovered "{}")\n\t{}'.format(
                 type(guesser).__name__,
                 word,
                 game.word,

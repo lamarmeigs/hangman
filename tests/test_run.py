@@ -34,8 +34,8 @@ class RunGuesserTestCase(TestCase):
                 verbose=False
             )
         mock_print.assert_called_once_with(
-            'PredictableGuesser successfully guessed "protean" '
-            'after 7 attempts (7 correct, 0 incorrect)'
+            'PredictableGuesser successfully guessed "protean"\n'
+            '\t7 attempts (7 correct, 0 incorrect)'
         )
 
     def test_output_on_loss(self):
@@ -50,7 +50,7 @@ class RunGuesserTestCase(TestCase):
             )
         mock_print.assert_called_once_with(
             'PredictableGuesser failed to guess "deleterious"'
-            ' (discovered "...........") after 8 attempts (0 correct, 8 incorrect)'
+            ' (discovered "...........")\n\t8 attempts (0 correct, 8 incorrect)'
         )
 
 
