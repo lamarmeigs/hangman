@@ -24,3 +24,7 @@ class GuessersTestCase(TestCase):
             guessers.RederivedAlphabetGuesser,
             guessers.derived.RederivedAlphabetGuesser
         )
+        self.assertIs(
+            guessers.FrequentLetterGuesser,
+            guessers.probability.FrequentLetterGuesser
+        )

@@ -7,3 +7,4 @@ from guessers.derived import (  # noqa
     OrderedDerivedAlphabetGuesser,
     RederivedAlphabetGuesser,
 )
+from guessers.probability import FrequentLetterGuesser  # noqa

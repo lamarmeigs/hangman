@@ -12,6 +12,7 @@ GUESSERS = {
     'derived': guessers.DerivedAlphabetGuesser,
     'ordered-derived': guessers.OrderedDerivedAlphabetGuesser,
     'rederived': guessers.RederivedAlphabetGuesser,
+    'frequent': guessers.FrequentLetterGuesser,
 }
 
 
