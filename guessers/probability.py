@@ -14,13 +14,18 @@ class FrequentLetterGuesser(RederivedAlphabetGuesser):
     def guesses(self):
         return self.correct_guesses.union(self.incorrect_guesses)
 
-    def update_state(self, letter_match):
-        """Record all guesses"""
+    def update_state(self, letter_match, guessed_word):
+        """Record all guesses and rederive potential words"""
         for letter, is_correct in letter_match.items():
             if is_correct:
                 self.correct_guesses.add(letter)
             else:
                 self.incorrect_guesses.add(letter)
+
+        self.potential_words = self._match_words(
+            guessed_word,
+            self.potential_words,
+        )
 
     def guess(self, guessed_word, *args, **kwargs):
         guess = None
@@ -28,10 +33,6 @@ class FrequentLetterGuesser(RederivedAlphabetGuesser):
             guess = self.potential_words[0][0]
             self.potential_words[0] = self.potential_words[0][1:]
         else:
-            self.potential_words = self._match_words(
-                guessed_word,
-                self.potential_words,
-            )
             guess = self._select_most_frequent_letter(self.potential_words)
         return guess
 
