@@ -12,6 +12,6 @@ class BaseGuesser(abc.ABC):
         """Return a letter to match against a game's word"""
         pass
 
-    def update_state(self, letter_match):
+    def update_state(self, letter_match, guessed_word):
         """Update any internal guesser state to make future guesses more accurate"""
         pass
