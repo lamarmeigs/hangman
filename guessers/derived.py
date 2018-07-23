@@ -91,6 +91,8 @@ class RederivedAlphabetGuesser(BaseDerivedAlphabetGuesser):
             guessed_word,
             self.potential_words,
         )
+        if not self.potential_words:
+            raise TableFlipError('No possible solution found')
 
     @staticmethod
     def _match_words(guessed_word, potential_words):
@@ -101,11 +103,8 @@ class RederivedAlphabetGuesser(BaseDerivedAlphabetGuesser):
     def guess(self, guessed_word, *args, **kwargs):
         guess = None
         if len(self.potential_words) == 1:
-            guess = self.potential_words[0][0]
-            self.potential_words[0] = self.potential_words[0][1:]
+            guess = self.potential_words[0]
         else:
-            if not self.potential_words:
-                raise TableFlipError('No possible solution found')
             self.alphabet = self._derive_alphabet(self.potential_words)
             guess = random.choice(list(self.alphabet))
         return guess

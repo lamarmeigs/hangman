@@ -21,7 +21,7 @@ class FrequentLetterGuesserTestCase(TestCase):
         self.assertEqual(guesser.correct_guesses, set())
         self.assertEqual(guesser.incorrect_guesses, set())
 
-        guesser.update_state({'g': True, 'p': False}, '....orality')
+        guesser.update_state({'g': True, 'p': False}, '....dual')
         self.assertEqual(guesser.correct_guesses, {'g'})
         self.assertEqual(guesser.incorrect_guesses, {'p'})
 
@@ -33,6 +33,13 @@ class FrequentLetterGuesserTestCase(TestCase):
         mock_match.assert_called_once_with('temp...lity', ['temporality'])
         self.assertEqual(guesser.potential_words, mock_match.return_value)
 
+    def test_update_state_raises_error_when_no_potential_words_exist(self):
+        guesser = FrequentLetterGuesser(9, ['facetious'])
+        with mock.patch.object(guesser, '_match_words', return_value=[]):
+            with self.assertRaises(TableFlipError) as cm:
+                guesser.update_state({'z': False}, 'face.....')
+            self.assertEqual(str(cm.exception), 'No possible solution found')
+
     def test_guess_returns_most_frequent_letter(self):
         guesser = FrequentLetterGuesser(6, ['latter', 'barrel', 'rabbit'])
         with mock.patch.object(guesser, '_select_most_frequent_letter') as mock_select:
@@ -41,15 +48,14 @@ class FrequentLetterGuesserTestCase(TestCase):
         mock_select.assert_called_once_with(guesser.potential_words)
         self.assertEqual(guess, mock_select.return_value)
 
-    def test_guess_pops_letters_off_single_word(self):
+    def test_guess_returns_final_word(self):
         guesser = FrequentLetterGuesser(6, ['gauche'])
         self.assertEqual(len(guesser.potential_words), 1)
 
         with mock.patch.object(guesser, '_select_most_frequent_letter') as mock_select:
             guess = guesser.guess(guessed_word='......')
 
-        self.assertIn(guess, 'gauche')
-        self.assertNotIn(guess, guesser.potential_words[0])
+        self.assertEqual(guess, 'gauche')
         mock_select.assert_not_called()
 
     def test_select_most_frequent_letter_works_as_expected(self):

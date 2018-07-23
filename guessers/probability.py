@@ -26,12 +26,13 @@ class FrequentLetterGuesser(RederivedAlphabetGuesser):
             guessed_word,
             self.potential_words,
         )
+        if not self.potential_words:
+            raise TableFlipError('No possible solution found')
 
     def guess(self, guessed_word, *args, **kwargs):
         guess = None
         if len(self.potential_words) == 1:
-            guess = self.potential_words[0][0]
-            self.potential_words[0] = self.potential_words[0][1:]
+            guess = self.potential_words[0]
         else:
             guess = self._select_most_frequent_letter(self.potential_words)
         return guess

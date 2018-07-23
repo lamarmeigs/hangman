@@ -109,6 +109,13 @@ class RederivedAlphabetGuesserTestCase(TestCase):
         mock_match.assert_called_once_with('.u.e...uou.', ['superfluous'])
         self.assertEqual(guesser.potential_words, mock_match.return_value)
 
+    def test_guess_raises_error_on_no_possible_solutions(self):
+        guesser = RederivedAlphabetGuesser(2, ['ornery'])
+        with mock.patch.object(guesser, '_match_words', return_value=[]):
+            with self.assertRaises(TableFlipError) as cm:
+                guesser.update_state({'s': False}, '......')
+            self.assertEqual(str(cm.exception), 'No possible solution found')
+
     def test_match_words_returns_words_matching_guessed_pattern(self):
         matched_words = RederivedAlphabetGuesser._match_words(
             '....otic',
@@ -128,22 +135,12 @@ class RederivedAlphabetGuesserTestCase(TestCase):
 
         self.assertIn(guess, mock_derive.return_value)
 
-    def test_guess_raises_error_on_no_possible_solutions(self):
-        guesser = RederivedAlphabetGuesser(2, ['ornery'])
-        with mock.patch.object(guesser, '_match_words', return_value=[]):
-            with self.assertRaises(TableFlipError) as cm:
-                guesser.guess(guessed_word='....')
-            self.assertEqual(str(cm.exception), 'No possible solution found')
-
-    def test_guess_pops_letters_off_single_word(self):
+    def test_guess_return_final_guess(self):
         guesser = RederivedAlphabetGuesser(6, ['pallor'])
         self.assertEqual(len(guesser.potential_words), 1)
 
-        with mock.patch.object(guesser, '_match_words') as mock_match:
-            with mock.patch.object(guesser, '_derive_alphabet') as mock_derive:
-                guess = guesser.guess(guessed_word='......')
+        with mock.patch.object(guesser, '_derive_alphabet') as mock_derive:
+            guess = guesser.guess(guessed_word='......')
 
-        self.assertIn(guess, 'pallor')
-        self.assertNotIn(guess, guesser.potential_words[0])
-        mock_match.assert_not_called()
+        self.assertEqual(guess, 'pallor')
         mock_derive.assert_not_called()
