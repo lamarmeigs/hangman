@@ -23,7 +23,7 @@ class BaseDerivedAlphabetGuesser(BaseGuesser):
         """Extract all unique letters in the given list of words"""
         return set(''.join(potential_words))
 
-    def update_state(self, letter_match):
+    def update_state(self, letter_match, guessed_word):
         """Record letters not present in the word to guess"""
         for letter, is_correct in letter_match.items():
             if not is_correct:
@@ -81,24 +81,31 @@ class RederivedAlphabetGuesser(BaseDerivedAlphabetGuesser):
             self.incorrect_guesses,
         )
 
-    def guess(self, guessed_word, *args, **kwargs):
-        guess = None
-        if len(self.potential_words) == 1:
-            guess = self.potential_words[0][0]
-            self.potential_words[0] = self.potential_words[0][1:]
-        else:
-            self.potential_words = self._match_words(
-                guessed_word,
-                self.potential_words,
-            )
-            if not self.potential_words:
-                raise TableFlipError('No possible solution found')
-            self.alphabet = self._derive_alphabet(self.potential_words)
-            guess = random.choice(list(self.alphabet))
-        return guess
+    def update_state(self, letter_match, guessed_word):
+        """Record incorrect guesses and recompute potential words"""
+        for letter, is_correct in letter_match.items():
+            if not is_correct:
+                self.incorrect_guesses.add(letter)
+
+        self.potential_words = self._match_words(
+            guessed_word,
+            self.potential_words,
+        )
 
     @staticmethod
     def _match_words(guessed_word, potential_words):
         """Extract words that match the pattern of the word guessed so far"""
         pattern = re.compile(guessed_word)
         return [word for word in potential_words if pattern.match(word)]
+
+    def guess(self, guessed_word, *args, **kwargs):
+        guess = None
+        if len(self.potential_words) == 1:
+            guess = self.potential_words[0][0]
+            self.potential_words[0] = self.potential_words[0][1:]
+        else:
+            if not self.potential_words:
+                raise TableFlipError('No possible solution found')
+            self.alphabet = self._derive_alphabet(self.potential_words)
+            guess = random.choice(list(self.alphabet))
+        return guess

@@ -36,7 +36,7 @@ class BaseDerivedAlphabetGuesserTestCase(TestCase):
 
     def test_update_state_records_incorrect_letters(self):
         guesser = self.DummyDerivedAlphabetGuesser()
-        guesser.update_state({'a': True, 'e': False, 'i': False, 'o': True})
+        guesser.update_state({'a': True, 'e': False, 'i': False, 'o': True}, 'a....')
         self.assertEqual(guesser.incorrect_guesses, {'e', 'i'})
 
 
@@ -98,20 +98,34 @@ class RederivedAlphabetGuesserTestCase(TestCase):
             guesser.incorrect_guesses,
         )
 
-    def test_guess_rederives_alphabet_and_words(self):
-        with mock.patch.object(RederivedAlphabetGuesser, '_cull_words') as mock_cull:
-            guesser = RederivedAlphabetGuesser(4, ['hoax', 'lull', 'aspartame'])
-
+    def test_update_state_sets_incorrect_guesses_and_potential_words(self):
+        guesser = RederivedAlphabetGuesser(11, ['superfluous'])
         with mock.patch.object(guesser, '_match_words') as mock_match:
-            with mock.patch.object(
-                guesser,
-                '_derive_alphabet',
-                return_value=set('hoaxlusprtme')
-            ) as mock_derive:
-                guess = guesser.guess(guessed_word='....')
-
-        mock_match.assert_called_once_with('....', mock_cull.return_value)
+            guesser.update_state(
+                {'a': False, 'e': True, 'i': False, 'o': True, 'u': True},
+                '.u.e...uou.'
+            )
+        self.assertEqual(guesser.incorrect_guesses, {'a', 'i'})
+        mock_match.assert_called_once_with('.u.e...uou.', ['superfluous'])
         self.assertEqual(guesser.potential_words, mock_match.return_value)
+
+    def test_match_words_returns_words_matching_guessed_pattern(self):
+        matched_words = RederivedAlphabetGuesser._match_words(
+            '....otic',
+            ['quixotic', 'neurotic', 'aberration']
+        )
+        self.assertCountEqual(matched_words, ['quixotic', 'neurotic'])
+
+    def test_guess_rederives_alphabet(self):
+        guesser = RederivedAlphabetGuesser(4, ['hoax', 'lull', 'aspartame'])
+
+        with mock.patch.object(
+            guesser,
+            '_derive_alphabet',
+            return_value=set('hoaxlusprtme')
+        ) as mock_derive:
+            guess = guesser.guess(guessed_word='....')
+
         self.assertIn(guess, mock_derive.return_value)
 
     def test_guess_raises_error_on_no_possible_solutions(self):
@@ -133,10 +147,3 @@ class RederivedAlphabetGuesserTestCase(TestCase):
         self.assertNotIn(guess, guesser.potential_words[0])
         mock_match.assert_not_called()
         mock_derive.assert_not_called()
-
-    def test_match_words_returns_words_matching_guessed_pattern(self):
-        matched_words = RederivedAlphabetGuesser._match_words(
-            '....otic',
-            ['quixotic', 'neurotic', 'aberration']
-        )
-        self.assertCountEqual(matched_words, ['quixotic', 'neurotic'])
