@@ -24,21 +24,30 @@ class SingleStateMarkovGuesser(FrequentLetterGuesser):
         if len(self.potential_words) == 1:
             return self.potential_words[0]
 
-        # If the word's first letter hasn't been found, try guessing it
-        elif guessed_word.startswith('.'):
-            guess = self._select_most_frequent_follower(
-                self.markov_model,
-                (markovify.chain.BEGIN,)
+        else:
+            # If guessed_word contains a non-terminating string of guessed
+            # letters, rely on the pre-computed Markov chains to select the
+            # most likely subsequent letter
+            stripped_word = guessed_word.lstrip('.')
+            latest_unguessed_index = stripped_word.find('.')
+            letter_series = (
+                stripped_word[:latest_unguessed_index]
+                if latest_unguessed_index >= 0
+                else stripped_word
             )
 
-        # Otherwise, rely on the pre-computed Markov chains to select the most
-        # likely letter following previously discovered letters
-        else:
-            letter_series = guessed_word.lstrip('.')[:guessed_word.lstrip('.').find('.')]
-            guess = self._select_most_frequent_follower(
-                self.markov_model,
-                letter_series[-1]
-            )
+            if not guessed_word.endswith(letter_series):
+                guess = self._select_most_frequent_follower(
+                    self.markov_model,
+                    letter_series[-1]
+                )
+
+            # Otherwise, the earliest unguessed letter is the beginning
+            else:
+                guess = self._select_most_frequent_follower(
+                    self.markov_model,
+                    (markovify.chain.BEGIN,)
+                )
 
         return guess
 
