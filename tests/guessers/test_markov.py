@@ -6,12 +6,17 @@ from guessers.markov import SingleStateMarkovGuesser
 
 
 class SingleStateMarkovGuesserTestCase(TestCase):
-    def test_init_trains_markov_model(self):
+    def test_init_trains_markov_model_and_derives_alphabet(self):
         with mock.patch('markovify.Chain') as mock_chain:
-            guesser = SingleStateMarkovGuesser(
-                word_length=12,
-                potential_words=['interstitial', 'formative']
-            )
+            with mock.patch.object(
+                SingleStateMarkovGuesser,
+                '_derive_alphabet'
+            ) as mock_derive:
+                guesser = SingleStateMarkovGuesser(
+                    word_length=12,
+                    potential_words=['interstitial', 'formative']
+                )
+
         mock_chain.assert_called_once_with(
             [
                 ['i', 'n', 't', 'e', 'r', 's', 't', 'i', 't', 'i', 'a', 'l'],
@@ -20,6 +25,15 @@ class SingleStateMarkovGuesserTestCase(TestCase):
             state_size=1
         )
         self.assertIs(guesser.markov_model, mock_chain.return_value)
+        self.assertEqual(guesser.alphabet, mock_derive.return_value)
+
+    def test_update_state_rederives_alphabet(self):
+        guesser = SingleStateMarkovGuesser(10, ['peripheral'])
+        with mock.patch.object(guesser, '_derive_alphabet') as mock_derive:
+            guesser.update_state({'x': False}, '..........')
+
+        mock_derive.assert_called_once_with(['peripheral'])
+        guesser.alphabet = mock_derive.return_value
 
     def test_guess_returns_final_word(self):
         guesser = SingleStateMarkovGuesser(
@@ -75,6 +89,8 @@ class SingleStateMarkovGuesserTestCase(TestCase):
             [
                 ['a', 'b'],
                 ['a', 'b', 'a', 'b'],
+                ['a', 'd'],
+                ['b', 'a', 'd'],
                 ['a', 'c'],
             ],
             state_size=1
@@ -84,5 +100,6 @@ class SingleStateMarkovGuesserTestCase(TestCase):
             potential_words=['implosion']
         )
         guesser.incorrect_guesses = {'b'}
+        guesser.alphabet = {'c'}
         guess = guesser._select_most_frequent_follower(chain, ('a',))
         self.assertEqual(guess, 'c')

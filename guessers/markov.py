@@ -11,6 +11,11 @@ class SingleStateMarkovGuesser(FrequentLetterGuesser):
             [list(word) for word in potential_words],
             state_size=1
         )
+        self.alphabet = self._derive_alphabet(self.potential_words)
+
+    def update_state(self, letter_match, guessed_word):
+        super().update_state(letter_match, guessed_word)
+        self.alphabet = self._derive_alphabet(self.potential_words)
 
     def guess(self, guessed_word, *args, **kwargs):
         guess = None
@@ -50,7 +55,7 @@ class SingleStateMarkovGuesser(FrequentLetterGuesser):
         potential_letter_frequency = (
             (letter, frequency)
             for letter, frequency in chain.model[tuple(letter_series)].items()
-            if letter not in self.guesses
+            if letter not in self.guesses and letter in self.alphabet
         )
         return sorted(
             potential_letter_frequency,
