@@ -13,6 +13,7 @@ GUESSERS = {
     'ordered-derived': guessers.OrderedDerivedAlphabetGuesser,
     'rederived': guessers.RederivedAlphabetGuesser,
     'frequent': guessers.FrequentLetterGuesser,
+    'markov1': guessers.SingleStateMarkovGuesser,
 }
 
 

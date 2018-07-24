@@ -28,3 +28,7 @@ class GuessersTestCase(TestCase):
             guessers.FrequentLetterGuesser,
             guessers.probability.FrequentLetterGuesser
         )
+        self.assertIs(
+            guessers.SingleStateMarkovGuesser,
+            guessers.markov.SingleStateMarkovGuesser
+        )
