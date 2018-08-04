@@ -32,3 +32,7 @@ class GuessersTestCase(TestCase):
             guessers.SingleStateMarkovGuesser,
             guessers.markov.SingleStateMarkovGuesser
         )
+        self.assertIs(
+            guessers.DoubleStateMarkovGuesser,
+            guessers.markov.DoubleStateMarkovGuesser
+        )

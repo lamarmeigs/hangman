@@ -14,6 +14,7 @@ GUESSERS = {
     'rederived': guessers.RederivedAlphabetGuesser,
     'frequent': guessers.FrequentLetterGuesser,
     'markov1': guessers.SingleStateMarkovGuesser,
+    'markov2': guessers.DoubleStateMarkovGuesser,
 }
 
 

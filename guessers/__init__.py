@@ -1,7 +1,10 @@
 from guessers.exc import TableFlipError  # noqa
 
 from guessers.manual import ManualGuesser  # noqa
-from guessers.markov import SingleStateMarkovGuesser  # noqa
+from guessers.markov import (  # noqa
+    SingleStateMarkovGuesser,
+    DoubleStateMarkovGuesser,
+)
 from guessers.naive import OrderedRandomGuesser, RandomGuesser  # noqa
 from guessers.derived import (  # noqa
     DerivedAlphabetGuesser,
