@@ -4,11 +4,12 @@ from guessers.probability import FrequentLetterGuesser
 
 
 class SingleStateMarkovGuesser(FrequentLetterGuesser):
-    """Uses Markov chains to guess subsequent letters"""
+    """Uses a single-state Markov chain to guess subsequent letters"""
     def __init__(self, word_length, potential_words, *args, **kwargs):
         super().__init__(word_length, potential_words, *args, **kwargs)
-        self.markov_model = markovify.Chain(
-            [list(word) for word in potential_words],
+        self.potential_word_letters = [list(word) for word in potential_words]
+        self.markov_model_1 = markovify.Chain(
+            self.potential_word_letters,
             state_size=1
         )
         self.alphabet = self._derive_alphabet(self.potential_words)
@@ -38,14 +39,14 @@ class SingleStateMarkovGuesser(FrequentLetterGuesser):
 
             if not guessed_word.endswith(letter_series):
                 guess = self._select_most_frequent_follower(
-                    self.markov_model,
+                    self.markov_model_1,
                     letter_series[-1]
                 )
 
             # Otherwise, the earliest unguessed letter is the beginning
             else:
                 guess = self._select_most_frequent_follower(
-                    self.markov_model,
+                    self.markov_model_1,
                     (markovify.chain.BEGIN,)
                 )
 
@@ -71,3 +72,53 @@ class SingleStateMarkovGuesser(FrequentLetterGuesser):
             key=lambda t: t[1],
             reverse=True
         )[0][0]
+
+
+class DoubleStateMarkovGuesser(SingleStateMarkovGuesser):
+    """Uses multiple Markov chains to guess subsequent letters"""
+    def __init__(self, word_length, potential_words, *args, **kwargs):
+        super().__init__(word_length, potential_words, *args, **kwargs)
+        self.markov_model_2 = markovify.Chain(
+            self.potential_word_letters,
+            state_size=2
+        )
+
+    def guess(self, guessed_word, *args, **kwargs):
+        guess = None
+
+        # When only one potential word remains, return it
+        if len(self.potential_words) == 1:
+            return self.potential_words[0]
+
+        else:
+            # If guessed_word contains a non-terminating string of guessed
+            # letters, rely on the pre-computed Markov chains to select the
+            # most likely subsequent letter
+            stripped_word = guessed_word.lstrip('.')
+            latest_unguessed_index = stripped_word.find('.')
+            letter_series = (
+                stripped_word[:latest_unguessed_index]
+                if latest_unguessed_index >= 0
+                else stripped_word
+            )
+
+            if not guessed_word.endswith(letter_series):
+                if len(letter_series) > 1:
+                    guess = self._select_most_frequent_follower(
+                        self.markov_model_2,
+                        letter_series[-2:]
+                    )
+                else:
+                    guess = self._select_most_frequent_follower(
+                        self.markov_model_1,
+                        letter_series[-1]
+                    )
+
+            # Otherwise, the earliest unguessed letter is the beginning
+            else:
+                guess = self._select_most_frequent_follower(
+                    self.markov_model_1,
+                    (markovify.chain.BEGIN,)
+                )
+
+        return guess
